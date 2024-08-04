@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Read;
 use std::io::{self, Write};
+use std::iter::zip;
 
 use rand::seq::SliceRandom;
 use rand::thread_rng;
@@ -16,6 +17,16 @@ pub struct Wordle {
     solution: String,
     pub guesses_left: i32,
     guessed_words: Vec<String>,
+}
+
+impl Color {
+    fn to_ansi_code(&self) -> &str {
+        match self {
+            Color::Grey => "\x1b[90m",   // ANSI code for grey
+            Color::Green => "\x1b[32m",  // ANSI code for green
+            Color::Yellow => "\x1b[33m", // ANSI code for yellow
+        }
+    }
 }
 
 impl Wordle {
@@ -74,7 +85,7 @@ impl Wordle {
         self.guesses_left -= 1;
     }
 
-    pub fn get_color(&self, inp: String) -> Vec<Color> {
+    pub fn get_color(&self, inp: &String) -> Vec<Color> {
         let mut result = Vec::new();
         let solution_chars: Vec<char> = self.solution.chars().collect();
 
@@ -90,10 +101,20 @@ impl Wordle {
         }
         result
     }
+    pub fn clear_terminal() {
+        print!("\x1B[2J\x1B[1;1H");
+        io::stdout().flush().unwrap();
+    }
+
     pub fn print(&self) {
         for word in self.guessed_words.clone() {
-            let colors = self.get_color(word);
-            println!("Colors: {:?}", colors);
+            let colors = self.get_color(&word);
+            for (ch, col) in
+                zip::<&Vec<char>, Vec<Color>>(&word.chars().into_iter().collect(), colors)
+            {
+                print!("{}{}{}", col.to_ansi_code(), ch, "\x1b[0m"); // Print character in color and reset color
+            }
+            println!(); // New line after each word
         }
     }
 }
