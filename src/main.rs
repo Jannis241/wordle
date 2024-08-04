@@ -6,6 +6,7 @@ mod game;
 
 fn main() {
     let mut wordle = Wordle::new();
+
     loop {
         let input = wordle.get_input("Your guess:");
 

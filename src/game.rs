@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::io::{self, Write};
@@ -87,16 +88,26 @@ impl Wordle {
 
     pub fn get_color(&self, inp: &String) -> Vec<Color> {
         let mut result = Vec::new();
-        let solution_chars: Vec<char> = self.solution.chars().collect();
+        let mut solution_chars: Vec<char> = self.solution.chars().collect();
+        let mut char_count = HashMap::new();
+
+        for char in &solution_chars {
+            *char_count.entry(char.clone()).or_insert(0) += 1;
+        }
 
         for (i, char) in inp.chars().enumerate() {
             if solution_chars[i] == char {
-                result.push(Color::Green)
+                result.push(Color::Green);
+                *char_count.entry(char).or_insert(0) -= 1;
             } else if self.solution.contains(char) {
-                // Todo: handle double yellow letters -> if there are 2 e in the guess and 1 e in the solution only 1 e should be yellow, if there are 2 then both are yellow
-                result.push(Color::Yellow)
+                if *char_count.get(&char).unwrap_or(&0) > 0 {
+                    result.push(Color::Yellow);
+                    *char_count.entry(char).or_insert(0) -= 1;
+                } else {
+                    result.push(Color::Grey);
+                }
             } else {
-                result.push(Color::Grey)
+                result.push(Color::Grey);
             }
         }
         result
