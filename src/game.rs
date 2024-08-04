@@ -1,11 +1,11 @@
 use std::fs::File;
 use std::io::Read;
 use std::io::{self, Write};
-use std::process::exit;
 
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
+#[derive(Debug)]
 enum Color {
     Green,
     Yellow,
@@ -48,8 +48,11 @@ impl Wordle {
 
         return words.contains(&input) || solutions.contains(&input);
     }
-    pub fn get_input(&mut self) {
-        print!("Your guess: ");
+    pub fn get_input(&mut self, prompt: &str) -> Option<String> {
+        io::stdout().flush().unwrap();
+        println!();
+        print!("{}", prompt);
+
         io::stdout().flush().unwrap();
 
         let mut input = String::new();
@@ -57,26 +60,42 @@ impl Wordle {
             .read_line(&mut input)
             .expect("Failed to read line");
         if self.is_input_valid(input.trim().to_lowercase()) {
-            self.guessed_words.push(input.trim().to_lowercase());
-            if input.trim().to_lowercase() == self.solution {
-                self.print();
-                exit(0);
-            }
-            self.guesses_left -= 1;
-            self.print();
-            if self.guesses_left == 0 {
-                println!("The solution was {}", self.solution);
-                exit(0);
-            }
+            Some(input)
         } else {
-            println!("Invalid word..");
+            None
         }
     }
-
-    pub fn get_color(c: char) -> Color {
-        return Color::Grey;
+    pub fn check_if_game_over(&self) -> bool {
+        return self.guessed_words.last().unwrap() == &self.solution || self.guesses_left == 0;
     }
-    pub fn print(&self) {}
+
+    pub fn set_input(&mut self, input: &String) {
+        self.guessed_words.push(input.clone().trim().to_lowercase());
+        self.guesses_left -= 1;
+    }
+
+    pub fn get_color(&self, inp: String) -> Vec<Color> {
+        let mut result = Vec::new();
+        let solution_chars: Vec<char> = self.solution.chars().collect();
+
+        for (i, char) in inp.chars().enumerate() {
+            if solution_chars[i] == char {
+                result.push(Color::Green)
+            } else if self.solution.contains(char) {
+                // Todo: handle double yellow letters -> if there are 2 e in the guess and 1 e in the solution only 1 e should be yellow, if there are 2 then both are yellow
+                result.push(Color::Yellow)
+            } else {
+                result.push(Color::Grey)
+            }
+        }
+        result
+    }
+    pub fn print(&self) {
+        for word in self.guessed_words.clone() {
+            let colors = self.get_color(word);
+            println!("Colors: {:?}", colors);
+        }
+    }
 }
 
 pub fn read_file(path: &str) -> Vec<String> {
