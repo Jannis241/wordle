@@ -7,8 +7,10 @@ use std::iter::zip;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
+// Todo: manchmal sind die gelben chars noch falsch -> bei duplicates oder so
+
 #[derive(Debug)]
-enum Color {
+pub enum Color {
     Green,
     Yellow,
     Grey,
@@ -17,7 +19,7 @@ enum Color {
 pub struct Wordle {
     solution: String,
     pub guesses_left: i32,
-    guessed_words: Vec<String>,
+    pub guessed_words: Vec<String>,
 }
 
 impl Color {
@@ -33,6 +35,7 @@ impl Color {
 impl Wordle {
     pub fn new() -> Self {
         let solution = Wordle::generate_solution();
+        println!("solution: {}", solution);
         println!("The solution is: {}", solution);
         Wordle {
             solution,
