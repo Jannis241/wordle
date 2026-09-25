@@ -4,8 +4,8 @@ use std::process::exit;
 use std::io::{self, Write};
 use crate::game::GameState;
 
-mod game; 
-mod bot; 
+mod game;
+mod bot;
 
 pub fn read_user_input(prompt: &str) -> String {
     print!("{}", prompt);
@@ -82,7 +82,7 @@ pub fn start_bot(num_of_games: i32, print_mode: &PrintMode) {
             }
             game::GameState::WON => {
                 if print_mode == &PrintMode::Normal || print_mode == &PrintMode::Detailed {
-                    println!("🎉 You won this game!"); 
+                    println!("🎉 You won this game!");
                 }
                 wins += 1;
             }
@@ -145,7 +145,7 @@ fn play_normal_game() {
             println!("");
         }
         game::GameState::WON => {
-            println!("🎉 You won this game!"); 
+            println!("🎉 You won this game!");
             println!("");
         }
         _ => {
@@ -156,6 +156,6 @@ fn play_normal_game() {
 }
 
 fn main() {
-    start_bot(10000, &PrintMode::Detailed);
+    start_bot(10000, &PrintMode::Stats);
     //play_normal_game();
 }
